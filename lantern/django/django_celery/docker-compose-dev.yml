@@ -35,23 +35,25 @@ services:
       - ./.data/redis:/data:rw
     ports:
       - 6379:6379
-#  celery:
-#    build:
-#      context: .
-#      dockerfile: docker/containers/api.Dockerfile
-#    command: celery -A car_dealer worker -l info --concurrency=2
-#    volumes:
-#      - .:/car_dealer
-#    depends_on:
-#      - postgres
-#      - redis-django
-#  celery-beat:
-#    build:
-#      context: .
-#      dockerfile: docker/containers/api.Dockerfile
-#    command: celery -A car_dealer beat -l info --concurrency=2
-#    volumes:
-#      - .:/car_dealer
-#    depends_on:
-#      - postgres
-#      - redis-django
+  celery:
+    build:
+      context: .
+      dockerfile: docker/containers/worker.Dockerfile
+    command: celery -A common.celery worker -l info --concurrency=2
+    env_file:
+      - ./docker/envs/.env-local
+    volumes:
+      - .:/car_dealer
+    depends_on:
+      - postgres
+      - redis-django
+  celery-beat:
+    build:
+      context: .
+      dockerfile: docker/containers/worker.Dockerfile
+    command: celery -A common.celery beat -l info --concurrency=2
+    volumes:
+      - .:/car_dealer
+    depends_on:
+      - postgres
+      - redis-django

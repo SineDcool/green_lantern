@@ -1,8 +1,10 @@
 from django.db import models
 from django.db.models import Index
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
 
 from apps.cars.managers import CarManager, CarQuerySet
+from apps.cars.tasks import send_notification
 from common.models import BaseDateAuditModel
 
 
@@ -106,3 +108,10 @@ class Car(BaseDateAuditModel):
         indexes = [
             Index(fields=['status', ])
         ]
+
+
+@receiver(models.signals.post_save, sender=Car)
+def notify_by_email(sender, instance, **kwargs):
+    if instance.status == Car.STATUS_PUBLISHED:
+
+        send_notification.delay(instance.pk)

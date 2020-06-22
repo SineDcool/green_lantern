@@ -28,3 +28,6 @@ class CarViewSet(ModelViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    # def get_serializer_class(self):
+    #     return CarSerializer if self.request.version == 'v1' else 'CarSerializerV2'
